@@ -17,7 +17,10 @@ export function Hero() {
           preload="auto"
           poster="/hero-banner.png"
         >
-          <source src="/hero.mp4" type="video/mp4" />
+          <source
+            src="https://github.com/eddie-vo/EVOCO/releases/download/v1.0.0/hero.mp4"
+            type="video/mp4"
+          />
         </video>
         {/* Soft left wash for headline contrast — clears before the person */}
         <div className="absolute inset-0 bg-gradient-to-r from-primary from-0% via-primary/50 via-28% to-transparent to-50%" />
