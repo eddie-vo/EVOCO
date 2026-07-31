@@ -3,6 +3,9 @@
 import { useEffect, useRef, useState } from "react"
 import { motion, useScroll, useSpring, useTransform } from "motion/react"
 
+const SCROLLY_VIDEO_SRC =
+  "https://github.com/eddie-vo/EVOCO/releases/download/v1.0.0/scrolly-video.mp4"
+
 const PHASES = [
   {
     tag: "01 // PHASE ONE",
@@ -119,7 +122,7 @@ export function ScrollVideoScrollytelling() {
       <div className="sticky top-0 flex h-screen w-full items-center justify-center overflow-hidden">
         <video
           ref={videoRef}
-          src="/scrolly-video.mp4"
+          src={SCROLLY_VIDEO_SRC}
           muted
           playsInline
           preload="auto"
@@ -128,7 +131,6 @@ export function ScrollVideoScrollytelling() {
             const media = event.currentTarget
             if (Number.isFinite(media.duration) && media.duration > 0) {
               setDuration(media.duration)
-              // Paint the first frame immediately
               try {
                 media.currentTime = 0.001
               } catch {
