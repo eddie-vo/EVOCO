@@ -64,26 +64,41 @@ export function ScrollVideoScrollytelling() {
 
   useEffect(() => {
     if (!duration) return
+    const video = videoRef.current
+    if (!video) return
 
     let frame = 0
     let targetTime = 0
     let currentTime = 0
     let running = true
 
+    // Seed from current scroll so we don't wait for the next spring tick
+    targetTime = Math.min(Math.max(smoothProgress.get() * duration, 0), Math.max(duration - 0.05, 0))
+    currentTime = targetTime
+
     const unsub = smoothProgress.on("change", (progress) => {
-      targetTime = Math.min(Math.max(progress * duration, 0), duration)
+      targetTime = Math.min(Math.max(progress * duration, 0), Math.max(duration - 0.05, 0))
     })
 
     const tick = () => {
       if (!running) return
-      const video = videoRef.current
-      if (video) {
-        currentTime += (targetTime - currentTime) * 0.18
-        if (Math.abs(targetTime - currentTime) < 0.001) currentTime = targetTime
-        if (Math.abs(video.currentTime - currentTime) >= 1 / 60) {
+      // Ease toward target
+      currentTime += (targetTime - currentTime) * 0.22
+      if (Math.abs(targetTime - currentTime) < 0.002) currentTime = targetTime
+
+      // Avoid seek storms — only update when idle and ready
+      if (
+        video.readyState >= 1 &&
+        !video.seeking &&
+        Math.abs(video.currentTime - currentTime) >= 1 / 48
+      ) {
+        try {
           video.currentTime = currentTime
+        } catch {
+          // Ignore transient seek errors while media is buffering
         }
       }
+
       frame = requestAnimationFrame(tick)
     }
     frame = requestAnimationFrame(tick)
@@ -104,19 +119,24 @@ export function ScrollVideoScrollytelling() {
       <div className="sticky top-0 flex h-screen w-full items-center justify-center overflow-hidden">
         <video
           ref={videoRef}
+          src="/scrolly-video.mp4"
           muted
           playsInline
           preload="auto"
-          className="absolute inset-0 h-full w-full object-cover opacity-50"
+          className="absolute inset-0 h-full w-full object-cover opacity-60"
           onLoadedMetadata={(event) => {
             const media = event.currentTarget
             if (Number.isFinite(media.duration) && media.duration > 0) {
               setDuration(media.duration)
+              // Paint the first frame immediately
+              try {
+                media.currentTime = 0.001
+              } catch {
+                /* noop */
+              }
             }
           }}
-        >
-          <source src="/scrolly-video.mp4" type="video/mp4" />
-        </video>
+        />
 
         <div
           aria-hidden
