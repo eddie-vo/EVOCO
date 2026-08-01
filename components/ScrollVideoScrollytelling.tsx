@@ -3,8 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { motion, useScroll, useSpring, useTransform } from "motion/react"
 
-const SCROLLY_VIDEO_SRC =
-  "https://github.com/eddie-vo/EVOCO/releases/download/v1.0.0/scrolly-video.mp4"
+const SCROLLY_VIDEO_SRC = "/videos/scrolly-video.mp4"
 
 const PHASES = [
   {
@@ -89,9 +88,9 @@ export function ScrollVideoScrollytelling() {
       currentTime += (targetTime - currentTime) * 0.22
       if (Math.abs(targetTime - currentTime) < 0.002) currentTime = targetTime
 
-      // Avoid seek storms — only update when idle and ready
+      // Avoid seek storms — only update when idle and ready enough to scrub
       if (
-        video.readyState >= 1 &&
+        video.readyState >= 2 &&
         !video.seeking &&
         Math.abs(video.currentTime - currentTime) >= 1 / 48
       ) {
@@ -137,6 +136,10 @@ export function ScrollVideoScrollytelling() {
                 /* noop */
               }
             }
+          }}
+          onError={() => {
+            // Keep section usable even if the asset fails to load
+            setDuration(0)
           }}
         />
 
