@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { motion, useScroll, useSpring, useTransform } from "motion/react"
+import { motion, useScroll, useTransform } from "motion/react"
 
 const SCROLLY_VIDEO_SRC = "/videos/scrolly-video.mp4"
 
@@ -29,34 +29,32 @@ const PHASES = [
   },
 ] as const
 
+function clamp(n: number, min: number, max: number) {
+  return Math.min(Math.max(n, min), max)
+}
+
 export function ScrollVideoScrollytelling() {
   const sectionRef = useRef<HTMLElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
-  const [duration, setDuration] = useState(0)
+  const targetTime = useRef(0)
+  const [ready, setReady] = useState(false)
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end end"],
   })
 
-  const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 80,
-    damping: 28,
-    mass: 0.35,
-    restDelta: 0.001,
-  })
+  // Card 1 — left
+  const card1X = useTransform(scrollYProgress, [0.06, 0.1, 0.26, 0.32], [-120, 0, 0, -120])
+  const card1Opacity = useTransform(scrollYProgress, [0.06, 0.1, 0.26, 0.32], [0, 1, 1, 0])
 
-  // Card 1 — left, ~10%–30%
-  const card1X = useTransform(smoothProgress, [0.06, 0.1, 0.26, 0.32], [-120, 0, 0, -120])
-  const card1Opacity = useTransform(smoothProgress, [0.06, 0.1, 0.26, 0.32], [0, 1, 1, 0])
+  // Card 2 — right
+  const card2X = useTransform(scrollYProgress, [0.32, 0.38, 0.58, 0.66], [120, 0, 0, 120])
+  const card2Opacity = useTransform(scrollYProgress, [0.32, 0.38, 0.58, 0.66], [0, 1, 1, 0])
 
-  // Card 2 — right, ~35%–65%
-  const card2X = useTransform(smoothProgress, [0.32, 0.38, 0.58, 0.66], [120, 0, 0, 120])
-  const card2Opacity = useTransform(smoothProgress, [0.32, 0.38, 0.58, 0.66], [0, 1, 1, 0])
-
-  // Card 3 — left, ~70%–95% (stays through end)
-  const card3X = useTransform(smoothProgress, [0.66, 0.72, 0.95, 1], [-120, 0, 0, 0])
-  const card3Opacity = useTransform(smoothProgress, [0.66, 0.72, 0.95, 1], [0, 1, 1, 1])
+  // Card 3 — left (stays through end)
+  const card3X = useTransform(scrollYProgress, [0.66, 0.72, 0.95, 1], [-120, 0, 0, 0])
+  const card3Opacity = useTransform(scrollYProgress, [0.66, 0.72, 0.95, 1], [0, 1, 1, 1])
 
   const cardMotion = [
     { x: card1X, opacity: card1Opacity },
@@ -64,53 +62,90 @@ export function ScrollVideoScrollytelling() {
     { x: card3X, opacity: card3Opacity },
   ]
 
+  // Keep muted / inline; never autoplay — we scrub manually
   useEffect(() => {
-    if (!duration) return
+    const video = videoRef.current
+    if (!video) return
+    video.pause()
+    video.playsInline = true
+    video.muted = true
+    video.preload = "auto"
+  }, [])
+
+  // Mark ready once we have a real duration and enough data to seek
+  useEffect(() => {
     const video = videoRef.current
     if (!video) return
 
-    let frame = 0
-    let targetTime = 0
-    let currentTime = 0
-    let running = true
-
-    // Seed from current scroll so we don't wait for the next spring tick
-    targetTime = Math.min(Math.max(smoothProgress.get() * duration, 0), Math.max(duration - 0.05, 0))
-    currentTime = targetTime
-
-    const unsub = smoothProgress.on("change", (progress) => {
-      targetTime = Math.min(Math.max(progress * duration, 0), Math.max(duration - 0.05, 0))
-    })
-
-    const tick = () => {
-      if (!running) return
-      // Ease toward target
-      currentTime += (targetTime - currentTime) * 0.22
-      if (Math.abs(targetTime - currentTime) < 0.002) currentTime = targetTime
-
-      // Avoid seek storms — only update when idle and ready enough to scrub
-      if (
-        video.readyState >= 2 &&
-        !video.seeking &&
-        Math.abs(video.currentTime - currentTime) >= 1 / 48
-      ) {
-        try {
-          video.currentTime = currentTime
-        } catch {
-          // Ignore transient seek errors while media is buffering
-        }
-      }
-
-      frame = requestAnimationFrame(tick)
+    const markReady = () => {
+      const d = video.duration
+      if (!Number.isFinite(d) || d <= 0) return
+      if (video.readyState < 2) return
+      setReady(true)
     }
-    frame = requestAnimationFrame(tick)
+
+    markReady()
+    video.addEventListener("loadedmetadata", markReady)
+    video.addEventListener("loadeddata", markReady)
+    video.addEventListener("canplay", markReady)
+    video.addEventListener("canplaythrough", markReady)
 
     return () => {
-      running = false
-      cancelAnimationFrame(frame)
+      video.removeEventListener("loadedmetadata", markReady)
+      video.removeEventListener("loadeddata", markReady)
+      video.removeEventListener("canplay", markReady)
+      video.removeEventListener("canplaythrough", markReady)
+    }
+  }, [])
+
+  // rAF scrubber: always chase the latest scroll target, never stack seeks
+  useEffect(() => {
+    if (!ready) return
+    const video = videoRef.current
+    if (!video) return
+
+    const duration = video.duration
+    if (!Number.isFinite(duration) || duration <= 0) return
+
+    const maxTime = Math.max(duration - 0.05, 0)
+    targetTime.current = clamp(scrollYProgress.get() * duration, 0, maxTime)
+
+    const unsub = scrollYProgress.on("change", (progress) => {
+      targetTime.current = clamp(progress * duration, 0, maxTime)
+    })
+
+    let raf = 0
+    const tick = () => {
+      raf = requestAnimationFrame(tick)
+
+      // Don't issue a new seek while one is in flight
+      if (video.seeking || video.readyState < 2) return
+
+      const next = targetTime.current
+      if (Math.abs(video.currentTime - next) < 0.05) return
+
+      try {
+        video.currentTime = next
+      } catch {
+        /* ignore InvalidStateError while metadata settles */
+      }
+    }
+
+    // Seed immediately so we aren't stuck on frame 0 until the next scroll tick
+    try {
+      video.pause()
+      video.currentTime = targetTime.current
+    } catch {
+      /* ignore */
+    }
+
+    raf = requestAnimationFrame(tick)
+
+    return () => {
+      cancelAnimationFrame(raf)
       unsub()
     }
-  }, [smoothProgress, duration])
+  }, [ready, scrollYProgress])
 
   return (
     <section
@@ -126,21 +161,6 @@ export function ScrollVideoScrollytelling() {
           playsInline
           preload="auto"
           className="absolute inset-0 h-full w-full object-cover opacity-60"
-          onLoadedMetadata={(event) => {
-            const media = event.currentTarget
-            if (Number.isFinite(media.duration) && media.duration > 0) {
-              setDuration(media.duration)
-              try {
-                media.currentTime = 0.001
-              } catch {
-                /* noop */
-              }
-            }
-          }}
-          onError={() => {
-            // Keep section usable even if the asset fails to load
-            setDuration(0)
-          }}
         />
 
         <div

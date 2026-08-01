@@ -29,13 +29,16 @@ const LINES = [
   },
 ] as const
 
-/** Scroll progress windows for each line (must sum/cover 0→1) */
+/**
+ * Scroll windows — short reveal, long hold so each line is readable while scrolling.
+ * Roughly ~20% of the track per line is a pause-to-read zone.
+ */
 const LINE_WINDOWS: [number, number, number, number][] = [
   // [fadeInStart, fullyVisible, fadeOutStart, fadeOutEnd]
-  [0.0, 0.06, 0.18, 0.24],
-  [0.22, 0.28, 0.4, 0.46],
-  [0.44, 0.5, 0.64, 0.7],
-  [0.68, 0.76, 0.95, 1.0],
+  [0.0, 0.02, 0.22, 0.25],
+  [0.24, 0.26, 0.46, 0.49],
+  [0.48, 0.52, 0.74, 0.77],
+  [0.76, 0.8, 0.98, 1.0],
 ]
 
 function splitWords(text: string) {
@@ -55,9 +58,9 @@ function ScrollWord({
   isFinal?: boolean
   reducedMotion: boolean
 }) {
-  const appearEnd = Math.min(appearAt + 0.035, 0.99)
-  const popStart = Math.min(appearEnd + 0.01, 0.995)
-  const popMid = Math.min(popStart + 0.015, 0.998)
+  const appearEnd = Math.min(appearAt + 0.02, 0.99)
+  const popStart = Math.min(appearEnd + 0.008, 0.995)
+  const popMid = Math.min(popStart + 0.012, 0.998)
 
   const opacity = useTransform(
     progress,
@@ -115,9 +118,9 @@ function ScrollLine({
     isLast ? [0, 1, 1, 1] : [0, 1, 1, 0],
   )
 
-  // Words reveal across the in→outStart span of this line
+  // Words finish appearing shortly after the line is fully visible, then hold to read
   const wordSpanStart = inStart
-  const wordSpanEnd = Math.max(inEnd + 0.08, outStart - 0.04)
+  const wordSpanEnd = Math.min(inEnd + 0.05, outStart - 0.08)
   const wordStep = (wordSpanEnd - wordSpanStart) / Math.max(contentWords.length, 1)
 
   let wordIndex = 0
@@ -164,7 +167,7 @@ export function ScrollyCta() {
   return (
     <>
       {/* Scroll-driven word-by-word buildup */}
-      <section ref={sectionRef} className="relative h-[400vh] bg-background">
+      <section ref={sectionRef} className="relative h-[700vh] bg-background">
         <div className="sticky top-0 flex h-screen items-center justify-center overflow-hidden">
           {LINES.map((line, index) => (
             <ScrollLine
