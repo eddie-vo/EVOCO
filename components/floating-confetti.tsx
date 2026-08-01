@@ -26,7 +26,7 @@ interface Particle {
   size: number
 }
 
-const DEFAULT_COLORS = ["#1D4ED8", "#6D28D9", "#38BDF8", "#F59E0B", "#EC4899"]
+const DEFAULT_COLORS = ["#1D4ED8", "#38BDF8", "#FACC15", "#F59E0B", "#0EA5E9"]
 const SHAPES: ParticleShape[] = ["circle", "square", "pill"]
 
 function randomBetween(min: number, max: number) {

@@ -1,8 +1,7 @@
 "use client"
 
-import Image from "next/image"
 import { motion } from "motion/react"
-import { ArrowRight, Play } from "lucide-react"
+import { ArrowRight } from "lucide-react"
 
 export function TrustVideo() {
   return (
@@ -16,16 +15,15 @@ export function TrustVideo() {
         >
           <span className="block h-1 w-12 rounded-full bg-accent" />
           <h2 className="mt-6 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            Leading companies trust us to develop software
+            Leading companies trust us to build and grow
           </h2>
           <p className="mt-5 max-w-md text-base leading-relaxed text-muted-foreground">
-            We are a custom software development company that guarantees the successful delivery of
-            your project. Our teams are distributed across the whole product lifecycle so nothing
-            falls through the cracks.
+            We&apos;re a full-stack growth partner — marketing, software, AI, and content, working from one team. From
+            strategy to launch, our specialists cover the whole lifecycle, so nothing falls through the cracks.
           </p>
           <a
             href="#"
-            className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-primary transition-colors hover:text-accent"
+            className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-primary transition-colors hover:text-brand-blue"
           >
             See more information
             <ArrowRight className="size-4" />
@@ -33,29 +31,23 @@ export function TrustVideo() {
         </motion.div>
 
         <motion.div
-          className="relative aspect-video w-full overflow-hidden rounded-2xl shadow-xl"
+          className="relative mx-auto aspect-square w-full max-w-lg overflow-hidden rounded-2xl shadow-xl lg:max-w-none"
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.6 }}
         >
-          <Image
-            src="/team-collaboration.png"
-            alt="Software development team collaborating around a laptop"
-            fill
-            sizes="(max-width: 1024px) 90vw, 45vw"
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-primary/40" />
-          <button
-            type="button"
-            aria-label="Play video"
-            className="group absolute inset-0 flex items-center justify-center"
+          <video
+            className="absolute inset-0 size-full object-contain"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            aria-label="Team collaboration video"
           >
-            <span className="flex size-16 items-center justify-center rounded-full bg-accent text-accent-foreground shadow-lg transition-transform group-hover:scale-110">
-              <Play className="size-6 translate-x-0.5 fill-current" />
-            </span>
-          </button>
+            <source src="/section-3.mp4" type="video/mp4" />
+          </video>
         </motion.div>
       </div>
     </section>

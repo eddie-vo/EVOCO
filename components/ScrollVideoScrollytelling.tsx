@@ -16,7 +16,7 @@ const PHASES = [
   },
   {
     tag: "02 // PHASE TWO",
-    tagClass: "text-violet-400",
+    tagClass: "text-sky-400",
     title: "Design & build",
     body: "Cross-functional squads ship polished interfaces and reliable systems in tight, visible iterations.",
     side: "right" as const,

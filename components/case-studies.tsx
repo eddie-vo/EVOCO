@@ -57,7 +57,7 @@ export function CaseStudies() {
                 <p className="mt-4 max-w-md text-sm leading-relaxed text-slate-600">{item.body}</p>
                 <a
                   href="#"
-                  className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary transition-colors hover:text-accent"
+                  className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary transition-colors hover:text-brand-blue"
                 >
                   Read more
                   <ArrowRight className="size-4" />
@@ -70,7 +70,7 @@ export function CaseStudies() {
         <div className="mt-10 flex justify-end">
           <a
             href="#"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-foreground transition-colors hover:text-accent"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-foreground transition-colors hover:text-primary"
           >
             Read more case studies
             <ArrowRight className="size-4" />

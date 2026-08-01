@@ -34,12 +34,13 @@ export function Hero() {
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
           <h1 className="text-balance text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
-            Great <span className="[color:#c4b5fd]">Product</span> is
-            <br className="hidden sm:block" /> built by great <span className="[color:#c4b5fd]">teams</span>
+            We build the <span className="text-[#38bdf8]">growth engine</span>
+            <br className="hidden sm:block" /> behind{" "}
+            <span className="text-[#38bdf8]">great companies</span>
           </h1>
           <p className="mt-6 max-w-md text-pretty text-base leading-relaxed text-primary-foreground/80">
-            We help build and manage a team of world-class developers to bring your vision to life — from first idea to
-            production-grade software.
+            We help companies grow with digital marketing, custom software, AI marketing, automation, and AI-assisted
+            video production — from strategy to execution to the content that sells it.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-4">
             <a
