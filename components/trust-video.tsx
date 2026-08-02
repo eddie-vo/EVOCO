@@ -22,7 +22,7 @@ export function TrustVideo() {
             strategy to launch, our specialists cover the whole lifecycle, so nothing falls through the cracks.
           </p>
           <a
-            href="#"
+            href="/about"
             className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-primary transition-colors hover:text-brand-blue"
           >
             See more information

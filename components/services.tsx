@@ -53,20 +53,62 @@ const SERVICES: {
   },
 ]
 
-const VISIBLE = 3
+function ServiceCard({
+  service,
+  featured,
+}: {
+  service: (typeof SERVICES)[number]
+  featured?: boolean
+}) {
+  const Icon = service.icon
+  return (
+    <article
+      className={cn(
+        "rounded-2xl border p-6 backdrop-blur-sm transition-all sm:p-8",
+        featured
+          ? "border-primary/20 bg-card/40 shadow-xl ring-1 ring-primary/10"
+          : "border-border/40 bg-card/25 shadow-sm",
+      )}
+    >
+      <div
+        className={cn(
+          "flex size-11 items-center justify-center rounded-xl sm:size-12",
+          featured ? "bg-[#facc15] text-slate-900" : "bg-[#facc15]/25 text-[#ca8a04]",
+        )}
+      >
+        <Icon className="size-5 sm:size-6" aria-hidden />
+      </div>
+      <h3 className="mt-5 text-lg font-semibold text-card-foreground sm:mt-6">{service.title}</h3>
+      <p className="mt-2 text-sm font-medium text-primary">{service.teaser}</p>
+      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{service.body}</p>
+    </article>
+  )
+}
 
 export function Services() {
   const [index, setIndex] = useState(0)
+  const [visible, setVisible] = useState(3)
   const count = SERVICES.length
-  const maxIndex = Math.max(0, count - VISIBLE)
+  const maxIndex = Math.max(0, count - visible)
+
+  useEffect(() => {
+    const update = () => {
+      if (window.matchMedia("(min-width: 1024px)").matches) setVisible(3)
+      else setVisible(2)
+    }
+    update()
+    window.addEventListener("resize", update)
+    return () => window.removeEventListener("resize", update)
+  }, [])
+
+  useEffect(() => {
+    setIndex((current) => Math.min(current, maxIndex))
+  }, [maxIndex])
 
   const goTo = useCallback(
-    (next: number) => {
-      setIndex(Math.min(Math.max(next, 0), maxIndex))
-    },
+    (next: number) => setIndex(Math.min(Math.max(next, 0), maxIndex)),
     [maxIndex],
   )
-
   const prev = useCallback(() => goTo(index - 1), [goTo, index])
   const next = useCallback(() => goTo(index + 1), [goTo, index])
 
@@ -80,15 +122,25 @@ export function Services() {
   }, [prev, next])
 
   return (
-    <section className="relative overflow-hidden bg-muted py-20 lg:py-28">
+    <section id="services" className="relative overflow-hidden bg-muted py-16 sm:py-20 lg:py-28">
       <FloatingConfetti />
       <div className="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <h2 className="text-center text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
           Services we offer
         </h2>
 
+        {/* Mobile: stacked cards */}
+        <ul className="mt-10 grid gap-4 sm:hidden">
+          {SERVICES.map((service) => (
+            <li key={service.title}>
+              <ServiceCard service={service} featured />
+            </li>
+          ))}
+        </ul>
+
+        {/* Tablet/desktop: carousel */}
         <div
-          className="relative mt-14 w-full"
+          className="relative mt-14 hidden w-full sm:block"
           role="region"
           aria-roledescription="carousel"
           aria-label="Services we offer"
@@ -96,43 +148,20 @@ export function Services() {
           <div className="w-full overflow-hidden">
             <motion.div
               className="flex w-full gap-6"
-              animate={{ x: `calc(-${index} * ((100% + 1.5rem) / ${VISIBLE}))` }}
+              animate={{ x: `calc(-${index} * ((100% + 1.5rem) / ${visible}))` }}
               transition={{ type: "spring", stiffness: 260, damping: 30 }}
             >
               {SERVICES.map((service, i) => {
-                const Icon = service.icon
-                const isFeatured = i === index + 1
-
+                const featuredIndex = Math.min(index + Math.floor((visible - 1) / 2), count - 1)
                 return (
-                  <article
+                  <div
                     key={service.title}
                     aria-roledescription="slide"
                     aria-label={`${i + 1} of ${count}`}
-                    className={cn(
-                      "w-[calc((100%-3rem)/3)] shrink-0 rounded-2xl border p-5 backdrop-blur-sm transition-all sm:p-8",
-                      isFeatured
-                        ? "border-primary/20 bg-card/25 shadow-xl ring-1 ring-primary/10 md:-translate-y-2"
-                        : "border-border/40 bg-card/15 shadow-sm",
-                    )}
+                    className="w-[calc((100%-1.5rem)/2)] shrink-0 lg:w-[calc((100%-3rem)/3)]"
                   >
-                    <div
-                      className={cn(
-                        "flex size-10 items-center justify-center rounded-xl sm:size-12",
-                        isFeatured
-                          ? "bg-[#facc15] text-slate-900"
-                          : "bg-[#facc15]/25 text-[#ca8a04]",
-                      )}
-                    >
-                      <Icon className="size-5 sm:size-6" aria-hidden />
-                    </div>
-                    <h3 className="mt-5 text-base font-semibold text-card-foreground sm:mt-6 sm:text-lg">
-                      {service.title}
-                    </h3>
-                    <p className="mt-2 text-xs font-medium text-primary sm:text-sm">{service.teaser}</p>
-                    <p className="mt-3 text-xs leading-relaxed text-muted-foreground sm:text-sm">
-                      {service.body}
-                    </p>
-                  </article>
+                    <ServiceCard service={service} featured={i === featuredIndex || i === index + 1} />
+                  </div>
                 )
               })}
             </motion.div>

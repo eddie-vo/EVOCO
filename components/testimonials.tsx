@@ -49,8 +49,8 @@ const TESTIMONIALS = [
     role: "Google Review",
     rating: 5,
     pullQuote:
-      "I like everything about VE Digital! Eddie went above and beyond to capture excellent 360 footage — great quality and service.",
-    full: "I like everything about VE Digital! Eddie is fantastic to work with. He was willing to go above and beyond to capture some excellent 360 footage during the pandemic. Great quality, reasonable pricing, and great service. He even produced some additional files for us at no extra cost. I would highly recommend him for your digital needs.",
+      "I like everything about Eddie Vo CO.! Eddie went above and beyond to capture excellent 360 footage — great quality and service.",
+    full: "I like everything about Eddie Vo CO.! Eddie is fantastic to work with. He was willing to go above and beyond to capture some excellent 360 footage during the pandemic. Great quality, reasonable pricing, and great service. He even produced some additional files for us at no extra cost. I would highly recommend him for your digital needs.",
   },
   {
     initials: "SA",
