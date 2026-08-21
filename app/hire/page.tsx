@@ -14,6 +14,7 @@ import {
 } from "lucide-react"
 import { Navbar } from "@/components/navbar"
 import { SiteFooter } from "@/components/site-footer"
+import { submitToFormspree } from "@/lib/formspree"
 
 const ease = [0.22, 1, 0.36, 1] as const
 
@@ -46,10 +47,29 @@ const MODELS = [
 
 export default function HirePage() {
   const [sent, setSent] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    setSent(true)
+    setSending(true)
+    setError(null)
+
+    const form = event.currentTarget
+    const data = new FormData(form)
+    data.set("_subject", "Eddie Vo Company — Hire brief")
+    data.set("form", "hire")
+
+    const formId = process.env.NEXT_PUBLIC_FORMSPREE_ID || ""
+    const result = await submitToFormspree(formId, data)
+
+    setSending(false)
+    if (result.ok) {
+      setSent(true)
+      form.reset()
+      return
+    }
+    setError(result.error)
   }
 
   return (
@@ -286,11 +306,17 @@ export default function HirePage() {
 
                 <button
                   type="submit"
-                  className="group inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#facc15] px-6 py-3.5 text-sm font-bold text-slate-950 transition hover:bg-[#fde047] sm:w-auto"
+                  disabled={sending}
+                  className="group inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#facc15] px-6 py-3.5 text-sm font-bold text-slate-950 transition hover:bg-[#fde047] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
                 >
-                  Submit brief
+                  {sending ? "Sending…" : "Submit brief"}
                   <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
                 </button>
+                {error ? (
+                  <p className="text-sm font-medium text-red-600" role="alert">
+                    {error}
+                  </p>
+                ) : null}
               </form>
             )}
           </motion.div>
