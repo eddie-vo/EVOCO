@@ -1,5 +1,12 @@
+import type { Metadata } from "next"
 import { Navbar } from "@/components/navbar"
 import { SiteFooter } from "@/components/site-footer"
+
+export const metadata: Metadata = {
+  title: "Terms of Service",
+  description: "Terms of service for eddievo.co and Eddie Vo Company.",
+  alternates: { canonical: "/terms" },
+}
 
 export default function TermsPage() {
   return (

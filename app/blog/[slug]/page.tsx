@@ -29,13 +29,13 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   if (slug === EMPTY_SLUG_PLACEHOLDER) {
-    return { title: "Blog — Eddie Vo Company" }
+    return { title: "Blog" }
   }
 
   const post = await getPostBySlug(slug)
 
   if (!post) {
-    return { title: "Post not found — Eddie Vo Company" }
+    return { title: "Post not found" }
   }
 
   const ogImage = post.coverImage?.asset
@@ -43,8 +43,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     : undefined
 
   return {
-    title: `${post.title} — Eddie Vo Company`,
+    title: post.title,
     description: post.excerpt || undefined,
+    alternates: { canonical: `/blog/${slug}` },
     openGraph: {
       title: post.title,
       description: post.excerpt || undefined,

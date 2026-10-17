@@ -6,7 +6,7 @@ import { SiteFooter } from "@/components/site-footer"
 import { getAllPosts, urlFor } from "@/lib/sanity"
 
 export const metadata: Metadata = {
-  title: "Blog — Eddie Vo Company",
+  title: "Blog",
   description:
     "Notes on growth systems, product, marketing, and building as one team from Eddie Vo Company.",
 }
