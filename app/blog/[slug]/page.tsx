@@ -4,8 +4,8 @@ import { notFound } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
 import { Navbar } from "@/components/navbar"
 import { SiteFooter } from "@/components/site-footer"
-import { BlogPortableText } from "@/components/blog-portable-text"
-import { getAllPostSlugs, getPostBySlug, urlFor } from "@/lib/sanity"
+import Markdown from "react-markdown"
+import { getAllPostSlugs, getPostBySlug, SITE_URL } from "@/lib/blog"
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -13,13 +13,13 @@ type Props = {
 
 /**
  * Next.js 16 + `output: 'export'` treats an empty generateStaticParams()
- * result as "missing". When the CMS has no posts yet, emit a reserved
+ * result as "missing". When there are no published posts yet, emit a reserved
  * placeholder path so the build succeeds; the page itself 404s.
  */
 const EMPTY_SLUG_PLACEHOLDER = "_"
 
 export async function generateStaticParams() {
-  const slugs = await getAllPostSlugs()
+  const slugs = getAllPostSlugs()
   if (slugs.length === 0) {
     return [{ slug: EMPTY_SLUG_PLACEHOLDER }]
   }
@@ -32,20 +32,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: "Blog — Eddie Vo Company" }
   }
 
-  const post = await getPostBySlug(slug)
+  const post = getPostBySlug(slug)
 
   if (!post) {
     return { title: "Post not found — Eddie Vo Company" }
   }
 
-  const ogImage = post.coverImage?.asset
-    ? urlFor(post.coverImage).width(1200).height(630).fit("crop").auto("format").url()
-    : undefined
+  const canonical = `${SITE_URL}/blog/${post.slug}`
+  const ogImage = post.coverImage ? SITE_URL + post.coverImage.src : undefined
 
   return {
     title: `${post.title} — Eddie Vo Company`,
     description: post.excerpt || undefined,
+    alternates: { canonical },
     openGraph: {
+      url: canonical,
       title: post.title,
       description: post.excerpt || undefined,
       type: "article",
@@ -61,6 +62,7 @@ function formatDate(value: string | null) {
     month: "long",
     day: "numeric",
     year: "numeric",
+    timeZone: "America/New_York",
   }).format(new Date(value))
 }
 
@@ -68,19 +70,32 @@ export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params
   if (slug === EMPTY_SLUG_PLACEHOLDER) notFound()
 
-  const post = await getPostBySlug(slug)
+  const post = getPostBySlug(slug)
   if (!post) notFound()
 
-  const coverSrc = post.coverImage?.asset
-    ? urlFor(post.coverImage).width(1600).height(900).fit("crop").auto("format").url()
-    : null
+  const coverSrc = post.coverImage?.src
   const dateLabel = formatDate(post.publishedAt)
+  const canonical = `${SITE_URL}/blog/${post.slug}`
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.excerpt,
+    datePublished: post.publishedAt,
+    author: { "@type": "Person", name: post.author },
+    publisher: { "@type": "Organization", name: "Eddie Vo Company", url: SITE_URL },
+    mainEntityOfPage: canonical,
+    image: coverSrc ? SITE_URL + coverSrc : undefined,
+  }
 
   return (
     <main>
       <Navbar tone="light" />
 
       <article className="bg-background pt-16">
+        <script type="application/ld+json" dangerouslySetInnerHTML={{
+          __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
+        }} />
         <header className="border-b border-border">
           <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
             <a
@@ -139,11 +154,9 @@ export default async function BlogPostPage({ params }: Props) {
         </header>
 
         <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
-          {post.body && post.body.length > 0 ? (
-            <BlogPortableText value={post.body} />
-          ) : (
-            <p className="text-muted-foreground">This post has no content yet.</p>
-          )}
+          <div className="space-y-5 break-words text-muted-foreground [&_a]:text-primary [&_a]:underline [&_blockquote]:border-l-2 [&_blockquote]:pl-4 [&_h2]:pt-4 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-foreground [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-foreground [&_ol]:list-decimal [&_ol]:pl-6 [&_ul]:list-disc [&_ul]:pl-6 [&_pre]:overflow-x-auto">
+            <Markdown skipHtml disallowedElements={["h1"]} unwrapDisallowed>{post.body}</Markdown>
+          </div>
         </div>
       </article>
 

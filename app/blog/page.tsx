@@ -3,10 +3,11 @@ import Image from "next/image"
 import { ArrowRight } from "lucide-react"
 import { Navbar } from "@/components/navbar"
 import { SiteFooter } from "@/components/site-footer"
-import { getAllPosts, urlFor } from "@/lib/sanity"
+import { getAllPosts, SITE_URL } from "@/lib/blog"
 
 export const metadata: Metadata = {
   title: "Blog — Eddie Vo Company",
+  alternates: { canonical: `${SITE_URL}/blog` },
   description:
     "Notes on growth systems, product, marketing, and building as one team from Eddie Vo Company.",
 }
@@ -17,11 +18,12 @@ function formatDate(value: string | null) {
     month: "short",
     day: "numeric",
     year: "numeric",
+    timeZone: "America/New_York",
   }).format(new Date(value))
 }
 
 export default async function BlogPage() {
-  const posts = await getAllPosts()
+  const posts = getAllPosts()
 
   return (
     <main>
@@ -56,8 +58,7 @@ export default async function BlogPage() {
                 No posts yet — check back soon
               </p>
               <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
-                We&apos;re getting the first pieces ready. In the meantime, explore our work or say
-                hello.
+                We&apos;re getting the first pieces ready. In the meantime, explore our work or say hello.
               </p>
               <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
                 <a
@@ -78,13 +79,11 @@ export default async function BlogPage() {
           ) : (
             <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {posts.map((post) => {
-                const coverSrc = post.coverImage?.asset
-                  ? urlFor(post.coverImage).width(900).height(600).fit("crop").auto("format").url()
-                  : null
+                const coverSrc = post.coverImage?.src
                 const dateLabel = formatDate(post.publishedAt)
 
                 return (
-                  <li key={post._id}>
+                  <li key={post.slug}>
                     <a
                       href={`/blog/${post.slug}`}
                       className="group flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-background shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl"
