@@ -1,0 +1,16 @@
+{
+  "slug": "how-to-check-google-search-updates",
+  "title": "How to Check for Google Search Updates Before Changing Your Website",
+  "excerpt": "Use Google’s Search Status Dashboard and your own site data to decide what to check before changing your SEO strategy after a sudden traffic drop.",
+  "author": "Eddie Vo Company",
+  "publishedAt": "2026-11-18T11:04:54Z",
+  "tags": [
+    "SEO",
+    "Small Business"
+  ],
+  "body": "When traffic from Google suddenly drops, the first decision is whether to investigate your own site, check for a wider issue, or do both. Start with the date the change began and the pages affected. That gives you something concrete to compare with Google’s updates and your own release history.\n\n## Check what Google has reported\n\nGoogle’s Search Status Dashboard lists widespread search issues and relevant ranking updates. Look for an entry that overlaps with your traffic change, and read which search system it concerns. A matching date is a clue. Your own page and query data can help you decide whether the event applies to your site.\n\nIf you maintain more than one website, subscribe to the RSS feed linked in Google’s guide. It gives you a shared place to start when clients or teammates notice changes.\n\n## Compare the timing with your own site\n\nIn Search Console, compare the affected dates with a similar period and look at individual pages. If most of the decline comes from one landing page, check whether that page changed, stopped loading, or points visitors to a different URL. If several unrelated pages changed together, write down what they share before deciding which issue to investigate first.\n\nFor a local business, also check the pages that drive calls or inquiries. A contact form that stopped working can matter more to the business than a small shift in total search traffic.\n\n## Decide what needs action now\n\nFix a broken page or lead form as soon as you confirm it. If the dashboard shows a potentially related incident and your site checks are clear, log what you found and set a time to review the data again. That gives you a decision you can explain without making broad changes based on one day of traffic.\n\n[See our website and marketing services](/services) if you want help prioritizing what to investigate.\n\n[Google’s guide to the Search Status Dashboard](https://developers.google.com/search/help/status-dashboard)\n",
+  "coverImage": {
+    "src": "/blog/how-to-check-google-search-updates.png",
+    "alt": "Illustration of a website status dashboard with a magnifying glass and a line chart."
+  }
+}
