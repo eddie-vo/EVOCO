@@ -155,7 +155,23 @@ export default async function BlogPostPage({ params }: Props) {
 
         <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
           <div className="space-y-5 break-words text-muted-foreground [&_a]:text-primary [&_a]:underline [&_blockquote]:border-l-2 [&_blockquote]:pl-4 [&_h2]:pt-4 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-foreground [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-foreground [&_ol]:list-decimal [&_ol]:pl-6 [&_ul]:list-disc [&_ul]:pl-6 [&_pre]:overflow-x-auto">
-            <Markdown skipHtml disallowedElements={["h1"]} unwrapDisallowed>{post.body}</Markdown>
+            <Markdown
+              skipHtml
+              disallowedElements={["h1"]}
+              unwrapDisallowed
+              components={{
+                img: ({ src, alt }) => typeof src === "string" ? (
+                  <Image
+                    src={src}
+                    alt={alt || ""}
+                    width={1024}
+                    height={576}
+                    loading="lazy"
+                    className="my-6 h-auto w-full rounded-2xl"
+                  />
+                ) : null,
+              }}
+            >{post.body}</Markdown>
           </div>
         </div>
       </article>
