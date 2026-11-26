@@ -1,7 +1,7 @@
 {
   "slug": "nvidia-coding-agent-arc-agi-3-analysis",
-  "title": "100% on ARC-AGI-3: Why the Number Doesn't Matter (But the Architecture Does)",
-  "excerpt": "If you look at the raw number, it sounds like we’ve hit the singularity. It sounds like the \"solve\" for General Intelligence has finally been checked off the list. But if you spend ten minutes in the threads—like the one bubbling up on r/singularity—you’ll see the community reaction is a masterclass in nuance.",
+  "title": "NVIDIA's AI Agent and ARC-AGI-3",
+  "excerpt": "NVIDIA's coding agent scored 100% on ARC-AGI-3. Learn why agent architecture and persistent workflows matter more than the headline score.",
   "author": "Eddie Vo",
   "publishedAt": "2026-08-22T02:46:24.793Z",
   "tags": [
